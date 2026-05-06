@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weather App</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to right, #4facfe, #00f2fe);
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    margin-top: 80px;
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+input {
+    padding: 10px;
+    width: 80%;
+    margin-bottom: 10px;
+}
+
+button {
+    padding: 10px 20px;
+    background: #4facfe;
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background: #007bff;
+}
+
+#weatherResult {
+    margin-top: 15px;
+}
+
+#forecast {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.forecast-card {
+    background: #f0f8ff;
+    padding: 10px;
+    margin: 5px;
+    border-radius: 8px;
+    width: 90px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    font-size: 12px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>Weather App</h1>
+
+    <input type="text" id="locationInput" placeholder="Enter location (e.g. Mumbai)">
+    <br>
+    <button onclick="getWeather()">Get Weather</button>
+
+    <div id="weatherResult">
+        <h3 id="city"></h3>
+        <p id="temp"></p>
+        <p id="condition"></p>
+    </div>
+
+    <div id="forecast"></div>
+</div>
+
+<script>
+function getWeather() {
+    const location = document.getElementById("locationInput").value;
+
+    if (location === "") {
+        alert("Please enter a location");
+        return;
+    }
+
+    const apiKey = "e8ba7a45f5f5491c86443041260605";
+    const url = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${location}&days=5&aqi=yes`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+
+            // Current weather
+            document.getElementById("city").innerText =
+                data.location.name + ", " + data.location.country;
+
+            document.getElementById("temp").innerText =
+                "Temperature: " + data.current.temp_c + "°C";
+
+            document.getElementById("condition").innerText =
+                "Condition: " + data.current.condition.text;
+
+            // Forecast
+            const forecastDiv = document.getElementById("forecast");
+            forecastDiv.innerHTML = "";
+
+            data.forecast.forecastday.forEach(day => {
+                const card = document.createElement("div");
+                card.classList.add("forecast-card");
+
+                card.innerHTML = `
+                    <p><b>${day.date}</b></p>
+                    <img src="https:${day.day.condition.icon}" width="40">
+                    <p>${day.day.avgtemp_c}°C</p>
+                    <p>${day.day.condition.text}</p>
+                `;
+
+                forecastDiv.appendChild(card);
+            });
+
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("Failed to fetch weather data");
+        });
+}
+</script>
+
+</body>
+</html>
